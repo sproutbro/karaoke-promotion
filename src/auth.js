@@ -43,6 +43,7 @@ let emailLogin = new Credentials({
 })
 
 export const { handle, signIn, signOut } = SvelteKitAuth({
+    trustHost: true,
     adapter: PrismaAdapter(prisma),
     providers: [
         emailLogin,
