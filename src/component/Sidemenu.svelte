@@ -1,7 +1,7 @@
 <script>
     import HamburgerIcon from "../component/HamburgerIcon.svelte";
     import { sideActive, hamburgerActive, menu } from "$lib/store.js";
-    import Chat from "../routes/chat/+page.svelte";
+    import Chat from "../component/Chat.svelte";
 
     function toggleMenu() {
         hamburgerActive.update((v) => !v);
@@ -16,7 +16,7 @@
     <div></div>
     <div class="flex flex-col space-y-5">
         {#each menu as { href, name }}
-            <a {href}>
+            <a {href} on:click={toggleMenu}>
                 <div
                     class="border rounded-md duration-700 hover:bg-white hover:text-black px-6 py-4"
                 >
