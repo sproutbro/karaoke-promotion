@@ -2,42 +2,35 @@
     import { chatActive } from "$lib/store.js";
     import { enhance } from "$app/forms";
     import { io } from "socket.io-client";
-    import { writable } from "svelte/store";
+    import { page } from "$app/stores";
+    import Modal from "../component/Modal.svelte";
+    import { modalActive } from "$lib/store.js";
+    import { onMount } from "svelte";
 
     let socket;
     let message = "";
-    let messages = writable([]);
+    let messages = [];
 
     function toggleChat() {
-        chatActive.update((value) => !value);
-        if ($chatActive) {
-            getChatMsg();
-
-            socket = io("http://localhost");
-
-            // chatting 연결중
-            socket.on("chat message", (msg) => {
-                messages.set([...$messages, msg]);
-
-                console.log($messages);
-            });
+        if (!$page.data.session) {
+            modalActive.set(true);
         } else {
-            socket.on("disconnect", () => {
-                console.log("Disconnected from server");
-            });
+            chatActive.update((value) => !value);
+            if ($chatActive) {
+                getChatMsg();
+            } else {
+                socket.on("disconnect", () => {
+                    console.log("Disconnected from server");
+                });
+            }
         }
     }
 
     async function getChatMsg() {
         try {
-            const response = await fetch("/api/chat", {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
+            const response = await fetch("/api/chat");
             const data = await response.json();
-            messages.set([...data.chatMsg]);
-            console.log($messages);
+            messages = [...data];
         } catch (error) {
             throw error;
         }
@@ -45,10 +38,26 @@
 
     function sendMsg() {
         // message 보내기
-        socket.emit("chat message", { content: message, userId: "admin" });
+        socket.emit("chat message", message);
         message = "";
     }
+
+    onMount(() => {
+        // socket = io("http://localhost:3000", {
+        //     cors: { origin: "*" },
+        // });
+
+        socket = io();
+
+        // chatting 연결중
+        socket.on("chat message", (msg) => {
+            console.log(msg);
+            messages = [...messages, msg];
+        });
+    });
 </script>
+
+<Modal />
 
 <button on:click={toggleChat}>
     <img
@@ -59,9 +68,9 @@
 </button>
 
 {#if $chatActive}
-    <!-- <div class="overlay" class:active={$chatActive}></div> -->
     <div
-        class="chat-container max-w-lg w-full overflow-hidden bg-white text-black flex flex-col items-center rounded-2xl border"
+        class="fixed top-0 left-0
+        md:bottom-1 md:right-1 md:max-w-lg w-full overflow-hidden bg-white text-black flex flex-col items-center rounded-2xl border"
     >
         <div class="flex justify-between max-w-lg w-full bg-gray-200 px-6">
             <div></div>
@@ -99,10 +108,11 @@
             </div>
         </div>
         <div class="chat-box overflow-y w-full h-[450px]">
-            {#each $messages as { content, userId }}
-                <div>{content}</div>
-                <div>{userId}</div>
-            {/each}
+            {#if messages.length !== 0}
+                {#each messages as { userId, content }}
+                    <div>{userId}: {content}</div>
+                {/each}
+            {/if}
         </div>
         <form
             method="post"
@@ -129,11 +139,11 @@
 {/if}
 
 <style>
-    .chat-container {
+    /* .chat-container {
         position: fixed;
         bottom: 5rem;
         right: 1.25rem;
-    }
+    } */
     .chat-box {
         overflow-y: scroll;
     }

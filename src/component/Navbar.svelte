@@ -1,5 +1,7 @@
 <script>
+    import { signOut } from "@auth/sveltekit/client";
     import Sidemenu from "./Sidemenu.svelte";
+    import { page } from "$app/stores";
 </script>
 
 <Sidemenu />
@@ -10,9 +12,13 @@
         <div class="font-bold text-xl">부천노래클럽</div>
     </a>
     <div>
-        <a href="/auth/signin">
-            <span class="material-icons md-36"> login </span>
-        </a>
+        {#if $page.data.session}
+            <button on:click={signOut}>signOut</button>
+        {:else}
+            <a href="/signin">
+                <span class="material-icons md-36"> login </span>
+            </a>
+        {/if}
     </div>
 </nav>
 

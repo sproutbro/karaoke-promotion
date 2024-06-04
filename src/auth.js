@@ -15,5 +15,8 @@ export const { handle, signIn, signOut } = SvelteKitAuth({
         Google,
         Kakao
     ],
+    pages: {
+        signIn: "/signin",
+    },
 })
 
