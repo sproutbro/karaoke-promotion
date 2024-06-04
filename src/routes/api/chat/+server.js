@@ -35,7 +35,7 @@ export async function POST(event) {
         console.log(newChatMessage);
 
         return new Response(
-            JSON.stringify(newChatMessage)
+            JSON.stringify(await prisma.chat.findMany({ where: { userId: session.user.email } }))
         )
     } else {
         return new Response(

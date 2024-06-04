@@ -4,12 +4,11 @@
     import { io } from "socket.io-client";
     import { page } from "$app/stores";
     import Modal from "../component/Modal.svelte";
-    import { modalActive } from "$lib/store.js";
+    import { modalActive, messages } from "$lib/store.js";
     import { onMount } from "svelte";
 
     let socket;
     let message = "";
-    let messages = [];
 
     function toggleChat() {
         if (!$page.data.session) {
@@ -30,29 +29,28 @@
         try {
             const response = await fetch("/api/chat");
             const data = await response.json();
-            messages = [...data];
+            messages.set(data);
         } catch (error) {
             throw error;
         }
     }
 
-    function sendMsg() {
+    async function sendMsg() {
         // message 보내기
         socket.emit("chat message", message);
         message = "";
     }
 
     onMount(() => {
-        // socket = io("http://localhost:3000", {
-        //     cors: { origin: "*" },
-        // });
+        socket = io("http://localhost:3000", {
+            cors: { origin: "*" },
+        });
 
-        socket = io();
+        // socket = io();
 
         // chatting 연결중
         socket.on("chat message", (msg) => {
-            console.log(msg);
-            messages = [...messages, msg];
+            getChatMsg();
         });
     });
 </script>
@@ -108,8 +106,8 @@
             </div>
         </div>
         <div class="chat-box overflow-y w-full h-[450px]">
-            {#if messages.length !== 0}
-                {#each messages as { userId, content }}
+            {#if $messages.length > 1}
+                {#each $messages as { userId, content }}
                     <div>{userId}: {content}</div>
                 {/each}
             {/if}
