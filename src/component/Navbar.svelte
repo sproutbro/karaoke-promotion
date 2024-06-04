@@ -10,10 +10,9 @@
         <div class="font-bold text-xl">부천노래클럽</div>
     </a>
     <div>
-        <a href="/signup">
+        <a href="/auth/signin">
             <span class="material-icons md-36"> login </span>
         </a>
-        <!-- <a href="/signup"> Join </a> -->
     </div>
 </nav>
 
