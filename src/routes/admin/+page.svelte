@@ -1,9 +1,7 @@
 <script>
     import { io } from "socket.io-client";
     import { onMount } from "svelte";
-    let socket = io("http://localhost:3000", {
-        cors: { origin: "*" },
-    });
+    let socket = io();
     socket.emit("register", "admin");
 
     export let data;
