@@ -4,7 +4,6 @@ export let hamburgerActive = writable(false);
 export let sideActive = writable(false);
 export let chatActive = writable(false);
 export let modalActive = writable(false);
-export let messages = writable([]);
 
 export let menu = [
     { href: "/", name: "Home" },

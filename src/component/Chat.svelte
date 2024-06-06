@@ -4,7 +4,7 @@
     import { io } from "socket.io-client";
     import { page } from "$app/stores";
     import Modal from "../component/Modal.svelte";
-    import { modalActive, messages } from "$lib/store.js";
+    import { modalActive } from "$lib/store.js";
     import { onMount } from "svelte";
 
     let socket;
@@ -29,28 +29,40 @@
         try {
             const response = await fetch("/api/chat");
             const data = await response.json();
-            messages.set(data);
+            // messages.set(data);
         } catch (error) {
             throw error;
         }
     }
 
-    async function sendMsg() {
-        // message 보내기
-        socket.emit("chat message", message);
-        message = "";
+    function sendMsg(e) {
+        e.preventDefault();
+        if (message) {
+            const toUserId = "admin";
+            const item = document.createElement("li");
+            item.style.textAlign = "right";
+            item.textContent = message;
+            messages.appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+            socket.emit("send message", { toUserId, message });
+            message = "";
+        }
     }
 
     onMount(() => {
         socket = io("http://localhost:3000", {
             cors: { origin: "*" },
         });
-
+        socket.emit("register", $page.data.session.user.email);
         // socket = io();
 
         // chatting 연결중
-        socket.on("chat message", (msg) => {
-            getChatMsg();
+        socket.on("receive message", (data) => {
+            console.log(`Message from ${data.from}: ${data.message}`);
+            const item = document.createElement("li");
+            item.textContent = data.message;
+            messages.appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
         });
     });
 </script>
@@ -106,11 +118,7 @@
             </div>
         </div>
         <div class="chat-box overflow-y w-full h-[450px]">
-            {#if $messages.length > 1}
-                {#each $messages as { userId, content }}
-                    <div>{userId}: {content}</div>
-                {/each}
-            {/if}
+            <ul id="messages"></ul>
         </div>
         <form
             method="post"
