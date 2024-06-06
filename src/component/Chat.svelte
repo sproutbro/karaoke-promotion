@@ -50,9 +50,7 @@
     }
 
     onMount(() => {
-        socket = io("http://localhost:3000", {
-            cors: { origin: "*" },
-        });
+        socket = io();
         socket.emit("register", $page.data.session.user.email);
         // socket = io();
 
