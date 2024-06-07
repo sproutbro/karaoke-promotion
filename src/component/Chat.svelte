@@ -96,25 +96,12 @@
         class="fixed top-0 left-0
         md:bottom-1 md:right-1 md:max-w-lg w-full overflow-hidden bg-white text-black flex flex-col items-center rounded-2xl border"
     >
-        <div class="flex justify-between max-w-lg w-full bg-gray-200 px-6">
-            <div></div>
+        <div class="flex justify-center max-w-lg w-full bg-gray-200 p-3">
             <div class="flex items-center">
                 <span class="material-symbols-outlined"> chat </span>
                 &nbsp;&nbsp;
                 <h1 class="text-center text-lg font-semibold">실시간메시지</h1>
             </div>
-            <button on:click={toggleChat}>
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    height="54px"
-                    viewBox="0 -960 960 960"
-                    width="54px"
-                    fill="#5f6368"
-                    ><path
-                        d="M180-120q-24 0-42-18t-18-42v-210h60v210h600v-600H180v210h-60v-210q0-24 18-42t42-18h600q24 0 42 18t18 42v600q0 24-18 42t-42 18H180Zm233-167-45-45 118-118H120v-60h366L368-628l45-45 193 193-193 193Z"
-                    /></svg
-                >
-            </button>
         </div>
         <div class="py-2 space-y-2">
             <img

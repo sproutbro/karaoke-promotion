@@ -14,6 +14,7 @@
     <div>
         {#if $page.data.session}
             <button on:click={signOut}>signOut</button>
+            <span class="material-icons md-36"> login </span>
         {:else}
             <a href="/signin">
                 <span class="material-icons md-36"> login </span>

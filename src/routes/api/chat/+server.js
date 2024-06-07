@@ -1,6 +1,7 @@
+import { isFirstEventInAnHour } from "$lib/utils.js";
+import { IS_LOCAL } from '$env/static/private';
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
-import { IS_LOCAL } from '$env/static/private';
 
 /** @type {import('./$types').RequestHandler} */
 export async function GET(event) {
@@ -53,6 +54,11 @@ export async function POST(event) {
                 admin
             }
         })
+
+        // 한시간동안 없던 유저인경우
+        if (!newChat.admin) {
+            isFirstEventInAnHour(newChat);
+        }
 
         return new Response(JSON.stringify(newChat), {
             status: 201

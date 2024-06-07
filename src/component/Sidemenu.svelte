@@ -1,9 +1,25 @@
 <script>
     import HamburgerIcon from "../component/HamburgerIcon.svelte";
-    import { sideActive, hamburgerActive, menu } from "$lib/store.js";
+    import {
+        sideActive,
+        hamburgerActive,
+        modalActive,
+        chatActive,
+        menu,
+    } from "$lib/store.js";
     import Chat from "../component/Chat.svelte";
 
     function toggleMenu() {
+        if ($modalActive) {
+            modalActive.set(false);
+            return;
+        }
+
+        if ($chatActive) {
+            chatActive.set(false);
+            return;
+        }
+        
         hamburgerActive.update((v) => !v);
         sideActive.set($hamburgerActive);
     }
