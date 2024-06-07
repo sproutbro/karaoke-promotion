@@ -5,64 +5,78 @@
     import { page } from "$app/stores";
     import Modal from "../component/Modal.svelte";
     import { modalActive } from "$lib/store.js";
-    import { onMount } from "svelte";
 
     let socket;
     let message = "";
 
     function toggleChat() {
+        // 로그인 안했을경우 모달
         if (!$page.data.session) {
             modalActive.set(true);
         } else {
+            // 채팅창 토글
             chatActive.update((value) => !value);
+
+            // 채팅창 켜지면 세팅
             if ($chatActive) {
-                getChatMsg();
+                chatConfig();
+                //채팅창 꺼지면 연결끊기
             } else {
-                socket.on("disconnect", () => {
-                    console.log("Disconnected from server");
-                });
+                if (socket) {
+                    socket.disconnect();
+                }
             }
         }
     }
 
-    async function getChatMsg() {
-        try {
-            const response = await fetch("/api/chat");
-            const data = await response.json();
-            // messages.set(data);
-        } catch (error) {
-            throw error;
-        }
-    }
-
-    function sendMsg(e) {
-        e.preventDefault();
+    function sendMsg() {
         if (message) {
-            const toUserId = "admin";
+            // 메세지 전송 메세지창추가
             const item = document.createElement("li");
             item.style.textAlign = "right";
             item.textContent = message;
             messages.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
-            socket.emit("send message", { toUserId, message });
             message = "";
         }
     }
 
-    onMount(() => {
-        socket = io();
-        socket.emit("register", $page.data.session.user.email);
-        // socket = io();
+    async function chatConfig() {
+        // 메세지와 Socket 서버 정보 가져오기
+        const response = await fetch("/api/chat");
+        const chatData = await response.json();
 
-        // chatting 연결중
+        // 메세지창 추가
+        chatData.data.sort((a, b) => a.id - b.id);
+        chatData.data.forEach((element) => {
+            const item = document.createElement("li");
+            // 유저글일경우 오른쪽정렬
+            if (!element.admin) {
+                item.style.textAlign = "right";
+            }
+            item.textContent = element.content;
+            messages.appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+
+        // Socket 연결
+        if (chatData.IS_LOCAL) {
+            socket = io("http://localhost:3000", { cors: { origin: "*" } });
+        } else {
+            socket = io();
+        }
+        socket.emit("register", $page.data.session.user.email);
+
+        // Socket 감지
         socket.on("receive message", (data) => {
-            console.log(`Message from ${data.from}: ${data.message}`);
+            // 메세지창 추가
+            console.log(data);
             const item = document.createElement("li");
             item.textContent = data.message;
             messages.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
         });
-    });
+    }
 </script>
 
 <Modal />

@@ -4,6 +4,7 @@ import https from "https";
 import fs from "fs";
 import { handler } from "./build/handler.js";
 import socketIO from "./socket.js";
+import { Server } from "socket.io";
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -37,7 +38,8 @@ const httpServer = http.createServer((req, res) => {
 });
 
 // Socket.io 서버 설정 (HTTPS 서버 사용)
-socketIO(httpsServer);
+const io = new Server(httpsServer);
+socketIO(io);
 
 // HTTPS 서버 실행
 httpsServer.listen(443, () => {

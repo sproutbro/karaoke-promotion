@@ -32,6 +32,7 @@ model Chat {
   createdAt DateTime @default(now())
   content   String
   userId    String
+  admin     Boolean  @default(false)
 }
 
 model User {
