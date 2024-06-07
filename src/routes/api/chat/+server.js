@@ -70,7 +70,7 @@ export async function POST(event) {
             data: {
                 userId,
                 content: message,
-                admin
+                admin: Boolean(admin)
             }
         })
 
