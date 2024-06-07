@@ -1,9 +1,6 @@
 import { PrismaClient } from '@prisma/client';
-import { io } from "socket.io-client";
 const prisma = new PrismaClient();
 import { IS_LOCAL } from '$env/static/private';
-
-let socket;
 
 /** @type {import('./$types').RequestHandler} */
 export async function GET(event) {
@@ -14,13 +11,6 @@ export async function GET(event) {
         const referer = event.request.headers.get("referer")
         const parts = referer.split('/');
         const path = parts.pop();
-
-        // 로컬 분기처리
-        if (IS_LOCAL) {
-            socket = io("http://localhost:3000", { cors: { origin: "*" } });
-        } else {
-            socket = io();
-        }
 
         if (path === "admin") {
             // 접속경로가 ADMIN일경우 모든 데이터 SOCKET ADMIN 등록
@@ -46,31 +36,21 @@ export async function POST(event) {
     const session = await event.locals.auth();
     if (session) {
         const data = await event.request.formData();
-        const message = data.get("content");
+        const message = data.get("message");
+        const toUserId = data.get("toUserId");
 
-        let userId = session.user.email;
-        let toUserId = data.get("toUserId");
-        let admin = false;
+        // 받는사람이 어드민일경우 작성자는 어드민 아님
+        let admin = toUserId == "admin" ? false : true;
 
-        if (!toUserId) {
-            // 보내는 사람 admin이면 유저아이디 user의 경우 admin
-            toUserId = "admin"
-        } else {
-            // 어드민일경우 db 어드민 컬럼 true
-            admin = true;
-            // 어드민의 경우 보내는 유저 상대방으로 함 db 조회용
-            userId = toUserId;
-        }
-
-        // 메세지 전송
-        socket.emit("send message", { toUserId, message });
+        // 받는 사람 어드민의 경우 작성자는 유저로 db 조회용
+        let userId = toUserId == "admin" ? session.user.email : toUserId;
 
         // DB 저장
         const newChat = await prisma.chat.create({
             data: {
                 userId,
                 content: message,
-                admin: admin
+                admin
             }
         })
 

@@ -7,7 +7,6 @@
     import { modalActive } from "$lib/store.js";
 
     let socket;
-    let message = "";
 
     function toggleChat() {
         // 로그인 안했을경우 모달
@@ -29,7 +28,8 @@
         }
     }
 
-    function sendMsg() {
+    function sendMsg(e) {
+        const message = e.currentTarget.message.value;
         if (message) {
             // 메세지 전송 메세지창추가
             const item = document.createElement("li");
@@ -37,7 +37,10 @@
             item.textContent = message;
             messages.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
-            message = "";
+            e.currentTarget.message.value = "";
+
+            // 메세지 전송
+            socket.emit("send message", { toUserId: "admin", message });
         }
     }
 
@@ -70,7 +73,6 @@
         // Socket 감지
         socket.on("receive message", (data) => {
             // 메세지창 추가
-            console.log(data);
             const item = document.createElement("li");
             item.textContent = data.message;
             messages.appendChild(item);
@@ -140,12 +142,8 @@
             on:submit={sendMsg}
         >
             <div class="flex justify-between w-full border rounded-full">
-                <input
-                    class="w-full mx-4"
-                    type="text"
-                    name="content"
-                    bind:value={message}
-                />
+                <input type="hidden" name="toUserId" value="admin" />
+                <input class="w-full mx-4" type="text" name="message" />
                 <button class="flex border px-4 py-2 rounded-full bg-[#FAD932]"
                     ><span class="material-symbols-outlined">
                         subdirectory_arrow_left

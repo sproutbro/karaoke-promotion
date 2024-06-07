@@ -7,26 +7,27 @@
     let socket;
     let messages = "";
     let userId = writable([]);
-    let chatData = [];
     let toUserId = "";
 
     function handleSubmit(e) {
-        const message = e.currentTarget.content.value;
+        const message = e.currentTarget.message.value;
         if (message) {
             const item = document.createElement("li");
             item.style.textAlign = "right";
             item.textContent = message;
             messages.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
-            e.currentTarget.content.value = "";
+            e.currentTarget.message.value = "";
+
+            // 메세지 전송
+            socket.emit("send message", { toUserId, message });
         }
     }
 
     // 클릭한 유저의 메세지기록 메세지창에 입력
     async function showMessages(e) {
         // 메세지와 Socket 서버 정보 가져오기
-        const { data } = await getData();
-        chatData = data;
+        const { chatData } = await getData();
 
         // toUserId 에 선택한 유저입력
         toUserId = e.target.innerText;
@@ -53,13 +54,15 @@
     // 메세지와 Socket 서버 정보 가져오기
     async function getData() {
         const response = await fetch("/api/chat");
-        return await response.json();
+        const jsonData = await response.json();
+        const chatData = jsonData.data.sort((a, b) => a.id - b.id);
+        const IS_LOCAL = jsonData.IS_LOCAL;
+        return { chatData, IS_LOCAL };
     }
 
     onMount(async () => {
         // 메세지와 Socket 서버 정보 가져오기
-        const { data, IS_LOCAL } = await getData();
-        chatData = data;
+        const { chatData, IS_LOCAL } = await getData();
 
         // 메세지 보낸아이디 배열에 담기
         userId.update((arr) => {
@@ -106,7 +109,7 @@
     on:submit={handleSubmit}
 >
     <input type="hidden" name="toUserId" value={toUserId} />
-    <input id="input" name="content" autocomplete="off" />
+    <input id="input" name="message" autocomplete="off" />
     <button>Send</button>
 </form>
 
