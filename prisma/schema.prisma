@@ -27,6 +27,24 @@ model Comment {
   post      Post     @relation(fields: [postId], references: [id])
 }
 
+model Notice {
+  id            Int             @id @default(autoincrement())
+  title         String
+  content       String
+  createdAt     DateTime        @default(now())
+  NoticeComment NoticeComment[]
+}
+
+model NoticeComment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  noticeId  Int
+  name      String?
+  email     String?
+  createdAt DateTime @default(now())
+  notice    Notice   @relation(fields: [noticeId], references: [id])
+}
+
 model Chat {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())

@@ -40,7 +40,7 @@ function isFirstEventInAnHour(eventKey) {
                 <a href="https://bucheon.store/admin">사이트이동</a>` // HTML 본문
         };
         timeData[email] = currentTime;
-        sendMail(mailOptions);
+        // sendMail(mailOptions);
     }
 }
 

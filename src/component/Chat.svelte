@@ -7,6 +7,7 @@
     import { modalActive } from "$lib/store.js";
 
     let socket;
+    let messages = "";
 
     function toggleChat() {
         // 로그인 안했을경우 모달
@@ -15,18 +16,18 @@
         } else {
             // 채팅창 토글
             chatActive.update((value) => !value);
-
-            // 채팅창 켜지면 세팅
-            if ($chatActive) {
-                chatConfig();
-                //채팅창 꺼지면 연결끊기
-            } else {
-                if (socket) {
-                    socket.disconnect();
-                }
-            }
         }
     }
+
+    chatActive.subscribe((value) => {
+        if (value) {
+            chatConfig();
+        } else {
+            if (socket) {
+                socket.disconnect();
+            }
+        }
+    });
 
     function sendMsg(e) {
         const message = e.currentTarget.message.value;
@@ -36,8 +37,9 @@
             item.style.textAlign = "right";
             item.textContent = message;
             messages.appendChild(item);
-            window.scrollTo(0, document.body.scrollHeight);
             e.currentTarget.message.value = "";
+            const chat_box = document.querySelector(".chat-box");
+            chat_box.scrollTo(0, chat_box.scrollHeight);
 
             // 메세지 전송
             socket.emit("send message", { toUserId: "admin", message });
@@ -59,7 +61,8 @@
             }
             item.textContent = element.content;
             messages.appendChild(item);
-            window.scrollTo(0, document.body.scrollHeight);
+            const chat_box = document.querySelector(".chat-box");
+            chat_box.scrollTo(0, chat_box.scrollHeight);
         });
 
         // Socket 연결
@@ -76,7 +79,8 @@
             const item = document.createElement("li");
             item.textContent = data.message;
             messages.appendChild(item);
-            window.scrollTo(0, document.body.scrollHeight);
+            const chat_box = document.querySelector(".chat-box");
+            chat_box.scrollTo(0, chat_box.scrollHeight);
         });
     }
 </script>
@@ -94,9 +98,9 @@
 {#if $chatActive}
     <div
         class="fixed top-0 left-0
-        md:bottom-1 md:right-1 md:max-w-lg w-full overflow-hidden bg-white text-black flex flex-col items-center rounded-2xl border"
+        md:bottom-1 md:right-1 md:max-w-lg w-full h-full overflow-hidden bg-white text-black flex flex-col items-center rounded-2xl border"
     >
-        <div class="flex justify-center max-w-lg w-full bg-gray-200 p-3">
+        <div class="flex justify-center md:max-w-lg w-full bg-gray-200 p-3">
             <div class="flex items-center">
                 <span class="material-symbols-outlined"> chat </span>
                 &nbsp;&nbsp;
@@ -106,20 +110,20 @@
         <div class="py-2 space-y-2">
             <img
                 class="mx-auto"
-                src="./favicon.png"
+                src="./icon/Logo.png"
                 alt="부천노래클럽 | admin logo"
                 width="64"
                 height="64"
             />
             <div>
                 <p class="text-sm font-semibold pt-4">
-                    운영자가 즉시 답변합니다.
+                    확인하는대로 즉시 답장드립니다.
                 </p>
                 <p class="text-sm text-gray-400">오후 6시 - 오전 6시</p>
             </div>
         </div>
-        <div class="chat-box overflow-y w-full h-[450px]">
-            <ul id="messages"></ul>
+        <div class="chat-box overflow-y w-full h-full">
+            <ul id="messages" bind:this={messages}></ul>
         </div>
         <form
             method="post"
@@ -142,33 +146,10 @@
 {/if}
 
 <style>
-    /* .chat-container {
-        position: fixed;
-        bottom: 5rem;
-        right: 1.25rem;
-    } */
     .chat-box {
         overflow-y: scroll;
     }
     .image-brand {
         filter: invert(100%);
     }
-    /* .overlay {
-        height: 100%;
-        width: 100%;
-        position: fixed;
-        top: 0;
-        display: flex;
-        flex-flow: column;
-        justify-content: space-between;
-        align-items: center;
-        background: rgba(3, 16, 3, 0.95);
-        overflow-x: hidden;
-        left: 100%;
-        transition: all 600ms;
-        z-index: 20;
-    }
-    .overlay.active {
-        left: 0;
-    } */
 </style>
