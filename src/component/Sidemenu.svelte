@@ -45,11 +45,11 @@
     <div class="w-full px-4 pb-5">
         <div class="flex justify-around">
             <a href="tel:01099225375">
-                <img src="./icon/call.png" alt="부천노래방 | Call icon" />
+                <img src="/icon/call.png" alt="부천노래방 | Call icon" />
             </a>
             <img
                 class="image-brand"
-                src="./icon/kakao.png"
+                src="/icon/kakao.png"
                 alt="부천노래방 | KaKao icon"
             />
             <Chat />

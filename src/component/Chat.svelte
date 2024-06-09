@@ -90,7 +90,7 @@
 <button on:click={toggleChat}>
     <img
         class="image-brand"
-        src="./icon/chat.png"
+        src="/icon/chat.png"
         alt="부천노래방 | Chat icon"
     />
 </button>
@@ -110,7 +110,7 @@
         <div class="py-2 space-y-2">
             <img
                 class="mx-auto"
-                src="./icon/Logo.png"
+                src="/icon/Logo.png"
                 alt="부천노래클럽 | admin logo"
                 width="64"
                 height="64"
