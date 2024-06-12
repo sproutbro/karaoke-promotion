@@ -1,5 +1,10 @@
 <script>
     import { enhance } from "$app/forms";
+
+    /** @type {import('./$types').ActionData} */
+    export let form;
+
+    console.log(form);
 </script>
 
 <div class="container mx-auto">
@@ -42,6 +47,9 @@
             >
             <input type="file" name="image" />
         </div>
+        {#if form?.message}
+            <p>{form.message}</p>
+        {/if}
         <div class="flex items-center justify-between">
             <button
                 type="submit"

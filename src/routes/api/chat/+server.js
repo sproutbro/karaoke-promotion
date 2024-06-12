@@ -8,22 +8,22 @@ export async function GET(event) {
     const session = await event.locals.auth();
     let data = [];
     if (session) {
-        // 접속 경로 확인
-        const referer = event.request.headers.get("referer")
-        const parts = referer.split('/');
-        const path = parts.pop();
-
-        if (path === "admin") {
-            // 접속경로가 ADMIN일경우 모든 데이터 SOCKET ADMIN 등록
-            data = await prisma.chat.findMany();
-        } else {
-            // email값으로 채팅기록 가져오기 SOCKET EMAIL 등록
-            data = await prisma.chat.findMany({ where: { userId: session.user.email } });
+        try {
+            if (session.user.email === "krsproutbro@gmail.com") {
+                // 접속경로가 ADMIN일경우 모든 데이터 SOCKET ADMIN 등록
+                data = await prisma.chat.findMany();
+            } else {
+                // email값으로 채팅기록 가져오기 SOCKET EMAIL 등록
+                data = await prisma.chat.findMany({ where: { userId: session.user.email } });
+            }
+            return new Response(
+                JSON.stringify({ data, IS_LOCAL })
+            )
+        } catch (error) {
+            console.error(error)
+        } finally {
+            await prisma.$disconnect();
         }
-
-        return new Response(
-            JSON.stringify({ data, IS_LOCAL })
-        )
     } else {
         // 나중에 제대로 권한없음이든 잘못된접근이든 빼자
         return new Response(
@@ -46,23 +46,29 @@ export async function POST(event) {
         // 받는 사람 어드민의 경우 작성자는 유저로 db 조회용
         let userId = toUserId == "admin" ? session.user.email : toUserId;
 
-        // DB 저장
-        const newChat = await prisma.chat.create({
-            data: {
-                userId,
-                content: message,
-                admin
+        try {
+            // DB 저장
+            const newChat = await prisma.chat.create({
+                data: {
+                    userId,
+                    content: message,
+                    admin
+                }
+            })
+
+            // 한시간동안 없던 유저인경우
+            if (!newChat.admin) {
+                isFirstEventInAnHour(newChat);
             }
-        })
 
-        // 한시간동안 없던 유저인경우
-        if (!newChat.admin) {
-            isFirstEventInAnHour(newChat);
+            return new Response(JSON.stringify(newChat), {
+                status: 201
+            });
+        } catch (error) {
+            console.error(error)
+        } finally {
+            await prisma.$disconnect();
         }
-
-        return new Response(JSON.stringify(newChat), {
-            status: 201
-        });
     } else {
         return new Response(
             // 나중에 제대로 권한없음이든 잘못된접근이든 빼자
